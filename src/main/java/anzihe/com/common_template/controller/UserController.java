@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public BaseResponse<?> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+    public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         String userAccount = userLoginRequest.getUserAccount();
         String password = userLoginRequest.getUserPassword();
         LoginUserVO loginUserVO = userService.userLogin(userAccount, password, request);
@@ -57,7 +57,7 @@ public class UserController {
     }
 
     @GetMapping("/current")
-    public BaseResponse<?> currentUser(HttpServletRequest request) {
+    public BaseResponse<LoginUserVO> currentUser(HttpServletRequest request) {
         LoginUserVO loginUserVO = userService.currentUser(request);
         return ResultUtils.success(loginUserVO);
     }
