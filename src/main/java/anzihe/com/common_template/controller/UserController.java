@@ -65,9 +65,6 @@ public class UserController {
     @GetMapping("/loginOut")
     public BaseResponse<?> loginOut(HttpServletRequest request) {
         boolean result = userService.loginOutUser(request);
-        //todo 修改 退出逻辑
-        //StpLogic space = StpKit.SPACE;
-        //space.getSession().clear();
         return ResultUtils.success(result);
     }
 
