@@ -12,6 +12,7 @@ import anzihe.com.common_template.model.enums.UserRoleEnum;
 import anzihe.com.common_template.service.UserService;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -100,7 +102,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             return null;
         }
-        return BeanUtil.toBean(user, LoginUserVO.class);
+        LoginUserVO bean = BeanUtil.toBean(user, LoginUserVO.class);
+        bean.setCreateTime(LocalDateTimeUtil.of(user.getCreateTime()));
+        bean.setUpdateTime(LocalDateTimeUtil.of(user.getUpdateTime()));
+        return bean;
     }
 
     @Override

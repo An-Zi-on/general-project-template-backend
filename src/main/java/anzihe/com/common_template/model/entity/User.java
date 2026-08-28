@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @TableName(value = "user")
 @Data
@@ -27,11 +27,11 @@ public class User {
 
     private String userRole;
 
-    private Date editTime;
+    private LocalDateTime editTime;
 
-    private Date createTime;
+    private LocalDateTime createTime;
 
-    private Date updateTime;
+    private LocalDateTime updateTime;
 
     @TableLogic
     private Integer isDelete;
