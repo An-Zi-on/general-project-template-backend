@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public BaseResponse<?> runTimeExceptionHandler(RuntimeException runtimeException) {
-        log.error("未处理的运行时异常: {}", String.valueOf(runtimeException), runtimeException);
+        log.error("未处理的运行时异常: {}",(runtimeException), runtimeException);
         return ResultUtils.error(ErrorCode.SYSTEM_ERROR);
     }
 }

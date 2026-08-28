@@ -49,10 +49,6 @@ public class UserController {
         String userAccount = userLoginRequest.getUserAccount();
         String password = userLoginRequest.getUserPassword();
         LoginUserVO loginUserVO = userService.userLogin(userAccount, password, request);
-        // todo 修改 登录逻辑
-        //StpLogic space = StpKit.SPACE;
-        //space.login(loginUserVO.getId());
-        //space.getSession().set(UserConstant.USER_LOGIN, loginUserVO);
         return ResultUtils.success(loginUserVO);
     }
 
