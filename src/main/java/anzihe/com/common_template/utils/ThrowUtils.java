@@ -1,4 +1,7 @@
-package anzihe.com.common_template.exception;
+package anzihe.com.common_template.utils;
+
+import anzihe.com.common_template.exception.BusinessException;
+import anzihe.com.common_template.exception.ErrorCode;
 
 public class ThrowUtils {
 

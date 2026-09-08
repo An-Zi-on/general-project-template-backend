@@ -2,7 +2,7 @@ package anzihe.com.common_template.service.impl;
 
 import anzihe.com.common_template.common.UserConstant;
 import anzihe.com.common_template.exception.ErrorCode;
-import anzihe.com.common_template.exception.ThrowUtils;
+import anzihe.com.common_template.utils.ThrowUtils;
 import anzihe.com.common_template.mapper.UserMapper;
 import anzihe.com.common_template.model.DTO.user.UserQueryRequest;
 import anzihe.com.common_template.model.VO.LoginUserVO;
@@ -10,6 +10,7 @@ import anzihe.com.common_template.model.VO.UserVO;
 import anzihe.com.common_template.model.entity.User;
 import anzihe.com.common_template.model.enums.UserRoleEnum;
 import anzihe.com.common_template.service.UserService;
+import anzihe.com.common_template.utils.TokenUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.LocalDateTimeUtil;
@@ -22,13 +23,12 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static anzihe.com.common_template.common.UserConstant.USER_LOGIN;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
@@ -57,7 +57,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public LoginUserVO userLogin(String userAccount, String password, HttpServletRequest request) {
+    public String userLogin(String userAccount, String password, HttpServletRequest request) {
         ThrowUtils.throwException(userAccount.length() < 8 || StrUtil.isEmptyIfStr(userAccount), ErrorCode.PARAMS_ERROR);
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
@@ -65,29 +65,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         ThrowUtils.throwException(selectUser == null, ErrorCode.PARAMS_ERROR, "用户不存在");
         String userPassword = selectUser.getUserPassword();
         ThrowUtils.throwException(!userPassword.equals(getEncryptPassword(password)), ErrorCode.PARAMS_ERROR, "密码错误");
-        LoginUserVO loginUserVO = toLoginUserVO(selectUser);
-        HttpSession session = request.getSession();
-        session.setAttribute(USER_LOGIN, loginUserVO);
-        return loginUserVO;
+        UserVO loginUserVO = toUserVO(selectUser);
+        return TokenUtil.sign(loginUserVO);
     }
 
     @Override
-    public LoginUserVO currentUser(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        LoginUserVO loginUser = (LoginUserVO) session.getAttribute(USER_LOGIN);
-        ThrowUtils.throwException(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
-        User selectUser = userMapper.selectById(loginUser.getId());
-        LoginUserVO loginUserVO = toLoginUserVO(selectUser);
-        session.setAttribute(USER_LOGIN, loginUserVO);
+    public UserVO currentUser(HttpServletRequest request) {
+        String token = request.getHeader("token");
+        ThrowUtils.throwException(!TokenUtil.verify(token), ErrorCode.NOT_LOGIN_ERROR);
+        UserVO currentUser = TokenUtil.getCurrentUser(token);
+        ThrowUtils.throwException(currentUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        User selectUser = userMapper.selectById(currentUser.getId());
+        UserVO loginUserVO = toUserVO(selectUser);
+        // 刷新 token，并通过响应头回传给前端
+        String newToken = TokenUtil.refreshToken(token);
+        ServletRequestAttributes attributes =
+                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes != null && attributes.getResponse() != null) {
+            attributes.getResponse().setHeader("token", newToken);
+        }
         return loginUserVO;
     }
 
     @Override
     public boolean loginOutUser(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        LoginUserVO currentUser = (LoginUserVO) session.getAttribute(USER_LOGIN);
-        ThrowUtils.throwException(currentUser == null, ErrorCode.NOT_LOGIN_ERROR);
-        session.removeAttribute(USER_LOGIN);
         return true;
     }
 

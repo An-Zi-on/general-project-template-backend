@@ -6,7 +6,7 @@ import anzihe.com.common_template.common.DeleteRequest;
 import anzihe.com.common_template.common.ResultUtils;
 import anzihe.com.common_template.common.UserConstant;
 import anzihe.com.common_template.exception.ErrorCode;
-import anzihe.com.common_template.exception.ThrowUtils;
+import anzihe.com.common_template.utils.ThrowUtils;
 import anzihe.com.common_template.model.DTO.user.UserAddRequest;
 import anzihe.com.common_template.model.DTO.user.UserLoginRequest;
 import anzihe.com.common_template.model.DTO.user.UserQueryRequest;
@@ -45,16 +45,16 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+    public BaseResponse<String> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         String userAccount = userLoginRequest.getUserAccount();
         String password = userLoginRequest.getUserPassword();
-        LoginUserVO loginUserVO = userService.userLogin(userAccount, password, request);
-        return ResultUtils.success(loginUserVO);
+        String token = userService.userLogin(userAccount, password, request);
+        return ResultUtils.success(token);
     }
 
     @GetMapping("/current")
-    public BaseResponse<LoginUserVO> currentUser(HttpServletRequest request) {
-        LoginUserVO loginUserVO = userService.currentUser(request);
+    public BaseResponse<UserVO> currentUser(HttpServletRequest request) {
+        UserVO loginUserVO = userService.currentUser(request);
         return ResultUtils.success(loginUserVO);
     }
 

@@ -4,6 +4,7 @@ import anzihe.com.common_template.annotation.authCheck;
 import anzihe.com.common_template.exception.BusinessException;
 import anzihe.com.common_template.exception.ErrorCode;
 import anzihe.com.common_template.model.VO.LoginUserVO;
+import anzihe.com.common_template.model.VO.UserVO;
 import anzihe.com.common_template.model.enums.UserRoleEnum;
 import anzihe.com.common_template.service.UserService;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -28,7 +29,7 @@ public class AuthInterrupt {
     public Object doInterrupt(ProceedingJoinPoint proceedingJoinPoint, authCheck authCheckAnnotation) throws Throwable {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
-        LoginUserVO loginUserVO = userService.currentUser(request);
+        UserVO loginUserVO = userService.currentUser(request);
         UserRoleEnum currentUserRole = UserRoleEnum.getEnumByText(loginUserVO.getUserRole());
         UserRoleEnum needUserRole = UserRoleEnum.getEnumByText(authCheckAnnotation.mustRole());
         if (needUserRole == null) {
