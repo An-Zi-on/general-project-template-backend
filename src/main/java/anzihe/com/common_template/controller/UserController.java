@@ -17,16 +17,27 @@ import anzihe.com.common_template.model.VO.UserVO;
 import anzihe.com.common_template.model.entity.User;
 import anzihe.com.common_template.service.UserService;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/user")
@@ -34,6 +45,14 @@ public class UserController {
 
     @Resource
     private UserService userService;
+
+    @Value("${app.upload.dir:uploads}")
+    private String uploadDir;
+
+    @Value("${app.upload.max-size-mb:2}")
+    private int maxSizeMb;
+
+    private static final Set<String> ALLOWED_AVATAR_EXT = new HashSet<>(Arrays.asList("jpg", "jpeg", "png", "webp", "gif"));
 
     @PostMapping("/register")
     public BaseResponse<?> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
@@ -62,6 +81,56 @@ public class UserController {
     public BaseResponse<?> loginOut(HttpServletRequest request) {
         boolean result = userService.loginOutUser(request);
         return ResultUtils.success(result);
+    }
+
+    /**
+     * 当前用户更新个人资料（昵称 / 头像 / 简介）
+     */
+    @PostMapping("/update/my")
+    public BaseResponse<?> updateMyProfile(@RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
+        ThrowUtils.throwException(userUpdateRequest == null, ErrorCode.PARAMS_ERROR);
+        UserVO current = userService.currentUser(request);
+        User user = new User();
+        user.setId(current.getId());
+        if (StrUtil.isNotBlank(userUpdateRequest.getUserName())) {
+            user.setUserName(userUpdateRequest.getUserName().trim());
+        }
+        if (userUpdateRequest.getUserAvatar() != null) {
+            user.setUserAvatar(userUpdateRequest.getUserAvatar().trim());
+        }
+        if (userUpdateRequest.getUserProfile() != null) {
+            user.setUserProfile(userUpdateRequest.getUserProfile().trim());
+        }
+        boolean result = userService.updateById(user);
+        ThrowUtils.throwException(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    /**
+     * 上传头像，返回可访问 URL 路径（相对 /api）
+     */
+    @PostMapping("/upload/avatar")
+    public BaseResponse<String> uploadAvatar(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
+        userService.currentUser(request);
+        ThrowUtils.throwException(file == null || file.isEmpty(), ErrorCode.PARAMS_ERROR, "请选择头像文件");
+        long maxBytes = maxSizeMb * 1024L * 1024L;
+        ThrowUtils.throwException(file.getSize() > maxBytes, ErrorCode.PARAMS_ERROR, "头像不能超过 " + maxSizeMb + "MB");
+
+        String originalName = file.getOriginalFilename();
+        String ext = FileUtil.extName(originalName);
+        ThrowUtils.throwException(StrUtil.isBlank(ext) || !ALLOWED_AVATAR_EXT.contains(ext.toLowerCase()),
+                ErrorCode.PARAMS_ERROR, "仅支持 jpg/png/webp/gif");
+
+        File dir = new File(uploadDir).getAbsoluteFile();
+        if (!dir.exists() && !dir.mkdirs()) {
+            ThrowUtils.throwException(true, ErrorCode.SYSTEM_ERROR, "创建上传目录失败");
+        }
+        String filename = IdUtil.simpleUUID() + "." + ext.toLowerCase();
+        File dest = new File(dir, filename);
+        file.transferTo(dest);
+        // 前端 baseURL 为 http://host:8123，接口统一带 /api 前缀
+        String url = "/api/uploads/" + filename;
+        return ResultUtils.success(url);
     }
 
     @PostMapping("/add")

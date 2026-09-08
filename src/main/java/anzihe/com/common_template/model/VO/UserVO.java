@@ -24,6 +24,8 @@ public class UserVO implements Serializable {
 
     private Date createTime;
 
+    private Date updateTime;
+
     private static final long serialVersionUID = 1L;
 
     public static User voToObj(UserVO userVO) {

@@ -113,7 +113,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             return null;
         }
-        return BeanUtil.toBean(user, UserVO.class);
+        UserVO userVO = BeanUtil.toBean(user, UserVO.class);
+        if (user.getCreateTime() != null) {
+            userVO.setCreateTime(java.util.Date.from(user.getCreateTime().atZone(java.time.ZoneId.systemDefault()).toInstant()));
+        }
+        if (user.getUpdateTime() != null) {
+            userVO.setUpdateTime(java.util.Date.from(user.getUpdateTime().atZone(java.time.ZoneId.systemDefault()).toInstant()));
+        }
+        return userVO;
     }
 
     @Override

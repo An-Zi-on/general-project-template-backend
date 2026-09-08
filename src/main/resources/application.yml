@@ -1,4 +1,8 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 2MB
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
@@ -34,3 +38,14 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - anzihe.com.common_template.controller
+
+# 本地头像上传目录（相对运行目录）
+app:
+  upload:
+    dir: uploads
+    max-size-mb: 2
+
+jwt:
+  secret: template
+  expire-minutes: 30
+  issuer: template
