@@ -27,5 +27,4 @@ public class BaseResponse<T> implements Serializable {
     public BaseResponse(ErrorCode errorCode) {
         this(errorCode, null);
     }
-
 }

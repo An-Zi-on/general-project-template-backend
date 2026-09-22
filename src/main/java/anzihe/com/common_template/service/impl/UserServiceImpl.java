@@ -5,8 +5,8 @@ import anzihe.com.common_template.exception.ErrorCode;
 import anzihe.com.common_template.utils.ThrowUtils;
 import anzihe.com.common_template.mapper.UserMapper;
 import anzihe.com.common_template.model.DTO.user.UserQueryRequest;
-import anzihe.com.common_template.model.VO.LoginUserVO;
-import anzihe.com.common_template.model.VO.UserVO;
+import anzihe.com.common_template.model.VO.user.LoginUserVO;
+import anzihe.com.common_template.model.VO.user.UserVO;
 import anzihe.com.common_template.model.entity.User;
 import anzihe.com.common_template.model.enums.UserRoleEnum;
 import anzihe.com.common_template.service.UserService;
@@ -21,14 +21,14 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
@@ -37,7 +37,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private UserMapper userMapper;
 
     @Override
-    public long register(String userAccount, String password, String checkPassword) {
+    public void register(String userAccount, String password, String checkPassword) {
         ThrowUtils.throwException(userAccount.length() < 8, ErrorCode.PARAMS_ERROR, "账号长度大于8位");
         ThrowUtils.throwException(password.length() < 8 || checkPassword.length() < 8, ErrorCode.PARAMS_ERROR, "密码长度大于8位");
         ThrowUtils.throwException(!password.equals(checkPassword), ErrorCode.PARAMS_ERROR, "输入密码不一致");
@@ -53,7 +53,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         updateUser.setUserRole(UserRoleEnum.USER.getValue());
         long result = userMapper.insert(updateUser);
         ThrowUtils.throwException(result <= 0, ErrorCode.SYSTEM_ERROR);
-        return result;
     }
 
     @Override

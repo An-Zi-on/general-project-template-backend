@@ -75,13 +75,6 @@ public class JacksonConfiguration{
             jacksonObjectMapperBuilder.featuresToDisable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
             log.info("Jackson 全局配置已加载: TimeZone={}, Locale={}", timeZone.getID(), locale);
-            ////序列化处理
-            ////是否允许出现未转义的制表符和换行符等(若出现了就会抛异常)
-            //jacksonObjectMapperBuilder.featuresToEnable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
-            ////是否支持反斜杠引用机制
-            //jacksonObjectMapperBuilder.featuresToEnable(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER.mappedFeature(), true);
-            ////ALLOW_SINGLE_QUOTES(false, JsonParser.Feature.ALLOW_SINGLE_QUOTES)：是否允许单引号’包裹着也行，默认是不允许的（因为这不是JSON规范）
-            //jacksonObjectMapperBuilder.featuresToEnable(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
         };
     }
 

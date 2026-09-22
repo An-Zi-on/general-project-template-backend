@@ -1,4 +1,4 @@
-package anzihe.com.common_template.model.VO;
+package anzihe.com.common_template.model.VO.user;
 
 import anzihe.com.common_template.model.entity.User;
 import lombok.Data;

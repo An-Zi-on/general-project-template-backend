@@ -12,8 +12,7 @@ import anzihe.com.common_template.model.DTO.user.UserLoginRequest;
 import anzihe.com.common_template.model.DTO.user.UserQueryRequest;
 import anzihe.com.common_template.model.DTO.user.UserRegisterRequest;
 import anzihe.com.common_template.model.DTO.user.UserUpdateRequest;
-import anzihe.com.common_template.model.VO.LoginUserVO;
-import anzihe.com.common_template.model.VO.UserVO;
+import anzihe.com.common_template.model.VO.user.UserVO;
 import anzihe.com.common_template.model.entity.User;
 import anzihe.com.common_template.service.UserService;
 import cn.hutool.core.bean.BeanUtil;
@@ -128,7 +127,6 @@ public class UserController {
         String filename = IdUtil.simpleUUID() + "." + ext.toLowerCase();
         File dest = new File(dir, filename);
         file.transferTo(dest);
-        // 前端 baseURL 为 http://host:8123，接口统一带 /api 前缀
         String url = "/api/uploads/" + filename;
         return ResultUtils.success(url);
     }

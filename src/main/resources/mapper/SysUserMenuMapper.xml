@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="anzihe.com.common_template.mapper.SysUserMenuMapper">
+
+    <resultMap id="BaseResultMap" type="anzihe.com.common_template.model.entity.SysUserMenu">
+            <id property="id" column="id" />
+            <result property="userId" column="user_id" />
+            <result property="roleId" column="role_id" />
+            <result property="menuId" column="menu_id" />
+            <result property="createTime" column="create_time" />
+            <result property="createBy" column="create_by" />
+            <result property="updateTime" column="update_time" />
+            <result property="updateBy" column="update_by" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,role_id,menu_id,create_time,create_by,
+        update_time,update_by
+    </sql>
+</mapper>

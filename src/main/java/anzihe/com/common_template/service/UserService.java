@@ -1,8 +1,8 @@
 package anzihe.com.common_template.service;
 
 import anzihe.com.common_template.model.DTO.user.UserQueryRequest;
-import anzihe.com.common_template.model.VO.LoginUserVO;
-import anzihe.com.common_template.model.VO.UserVO;
+import anzihe.com.common_template.model.VO.user.LoginUserVO;
+import anzihe.com.common_template.model.VO.user.UserVO;
 import anzihe.com.common_template.model.entity.User;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.spring.service.IService;
@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface UserService extends IService<User> {
 
-    long register(String userAccount, String password, String checkPassword);
+    void register(String userAccount, String password, String checkPassword);
 
     String userLogin(String userAccount, String password, HttpServletRequest request);
 

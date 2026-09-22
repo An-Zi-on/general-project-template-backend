@@ -2,8 +2,7 @@ package anzihe.com.common_template.utils;
 
 import anzihe.com.common_template.exception.BusinessException;
 import anzihe.com.common_template.exception.ErrorCode;
-import anzihe.com.common_template.model.VO.UserVO;
-import cn.hutool.core.bean.BeanUtil;
+import anzihe.com.common_template.model.VO.user.UserVO;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.auth0.jwt.JWT;

@@ -1,11 +1,9 @@
-package anzihe.com.common_template.model.VO;
+package anzihe.com.common_template.model.VO.user;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 public class LoginUserVO implements Serializable {

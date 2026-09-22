@@ -5,7 +5,7 @@
 <mapper namespace="anzihe.com.common_template.mapper.UserMapper">
 
     <resultMap id="BaseResultMap" type="anzihe.com.common_template.model.entity.User">
-        <id property="id" column="id" jdbcType="BIGINT"/>
+        <id property="id" column="id" jdbcType="INTEGER"/>
         <result property="userAccount" column="userAccount" jdbcType="VARCHAR"/>
         <result property="userPassword" column="userPassword" jdbcType="VARCHAR"/>
         <result property="userName" column="userName" jdbcType="VARCHAR"/>
