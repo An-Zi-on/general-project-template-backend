@@ -11,6 +11,7 @@ import anzihe.com.common_template.model.DTO.user.UserAddRequest;
 import anzihe.com.common_template.model.DTO.user.UserLoginRequest;
 import anzihe.com.common_template.model.DTO.user.UserQueryRequest;
 import anzihe.com.common_template.model.DTO.user.UserRegisterRequest;
+import anzihe.com.common_template.model.DTO.user.UserRoleAssignDTO;
 import anzihe.com.common_template.model.DTO.user.UserUpdateRequest;
 import anzihe.com.common_template.model.VO.user.UserVO;
 import anzihe.com.common_template.model.entity.User;
@@ -19,6 +20,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -101,6 +103,26 @@ public class UserController {
             user.setUserProfile(userUpdateRequest.getUserProfile().trim());
         }
         boolean result = userService.updateById(user);
+        ThrowUtils.throwException(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    /**
+     * 给用户分配角色（只改 role_id，不碰其他字段）
+     *
+     * 这里用 LambdaUpdateWrapper 显式 set：updateById 会忽略 null 字段，
+     * 那样 roleId 传 null 时就没法解绑角色了。
+     */
+    @PostMapping("/role/assign")
+    public BaseResponse<Boolean> assignRole(@RequestBody UserRoleAssignDTO userRoleAssignDTO) {
+        ThrowUtils.throwException(userRoleAssignDTO == null || userRoleAssignDTO.getUserId() == null,
+                ErrorCode.PARAMS_ERROR, "用户ID不能为空");
+        User existUser = userService.getById(userRoleAssignDTO.getUserId());
+        ThrowUtils.throwException(existUser == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在");
+
+        boolean result = userService.update(new LambdaUpdateWrapper<User>()
+                .eq(User::getId, userRoleAssignDTO.getUserId())
+                .set(User::getRoleId, userRoleAssignDTO.getRoleId()));
         ThrowUtils.throwException(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
     }

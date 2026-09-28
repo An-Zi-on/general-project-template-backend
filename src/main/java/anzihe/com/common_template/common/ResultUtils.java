@@ -5,7 +5,7 @@ import anzihe.com.common_template.exception.ErrorCode;
 public class ResultUtils {
 
     public static <T> BaseResponse<T> success(T data) {
-        return new BaseResponse<>(0, "ok", data);
+        return new BaseResponse<>(200, "ok", data);
     }
 
     public static BaseResponse<?> error(ErrorCode errorCode) {

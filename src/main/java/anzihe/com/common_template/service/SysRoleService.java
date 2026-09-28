@@ -1,6 +1,8 @@
 package anzihe.com.common_template.service;
 
+import anzihe.com.common_template.model.DTO.role.SysRoleDTO;
 import anzihe.com.common_template.model.entity.SysRole;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.spring.service.IService;
 
 /**
@@ -10,4 +12,5 @@ import com.baomidou.mybatisplus.spring.service.IService;
 */
 public interface SysRoleService extends IService<SysRole> {
 
+    Page<SysRoleDTO> getlist(SysRoleDTO roleDTO);
 }

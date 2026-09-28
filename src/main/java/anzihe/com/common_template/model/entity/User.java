@@ -27,6 +27,9 @@ public class User {
 
     private String userRole;
 
+    /** 角色ID（关联 sys_role.id）：用户绑角色，间接获得该角色的菜单权限 */
+    private Integer roleId;
+
     private LocalDateTime editTime;
 
     private LocalDateTime createTime;

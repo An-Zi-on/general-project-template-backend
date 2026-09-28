@@ -59,7 +59,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public String userLogin(String userAccount, String password, HttpServletRequest request) {
         ThrowUtils.throwException(userAccount.length() < 8 || StrUtil.isEmptyIfStr(userAccount), ErrorCode.PARAMS_ERROR);
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("userAccount", userAccount);
+        queryWrapper.eq("user_account", userAccount);
         User selectUser = userMapper.selectOne(queryWrapper);
         ThrowUtils.throwException(selectUser == null, ErrorCode.PARAMS_ERROR, "用户不存在");
         String userPassword = selectUser.getUserPassword();

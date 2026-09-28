@@ -22,6 +22,9 @@ public class UserVO implements Serializable {
 
     private String userRole;
 
+    /** 角色ID（关联 sys_role.id），前端拿它映射角色名 */
+    private Integer roleId;
+
     private Date createTime;
 
     private Date updateTime;

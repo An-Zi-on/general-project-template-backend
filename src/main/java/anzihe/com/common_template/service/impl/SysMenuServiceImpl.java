@@ -7,14 +7,21 @@ import anzihe.com.common_template.model.DTO.menu.SysMenuDTO;
 import anzihe.com.common_template.model.VO.menu.SysMenuTreeVO;
 import anzihe.com.common_template.model.VO.menu.SysMenuVO;
 import anzihe.com.common_template.model.entity.SysMenu;
+import anzihe.com.common_template.model.entity.SysUserMenu;
+import anzihe.com.common_template.model.entity.User;
 import anzihe.com.common_template.service.SysMenuService;
 import anzihe.com.common_template.mapper.SysMenuMapper;
+import anzihe.com.common_template.mapper.UserMapper;
+import anzihe.com.common_template.service.SysRoleMenuService;
+import anzihe.com.common_template.service.SysUserMenuService;
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,6 +33,15 @@ import java.util.stream.Collectors;
 @Service
 public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu>
     implements SysMenuService{
+
+    @Resource
+    private SysUserMenuService userMenuService;
+
+    @Resource
+    private SysRoleMenuService roleMenuService;
+
+    @Resource
+    private UserMapper userMapper;
 
     @Override
     public void save(SysMenuDTO dto) {
@@ -79,30 +95,67 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu>
     @Override
     public List<SysMenuTreeVO> tree() {
         // 1. 查询所有菜单
-        List<SysMenu> list = this.list();
-
-        // 2. 转成 VO
-        List<SysMenuTreeVO> voList = list.stream().map(menu -> {
-            SysMenuTreeVO vo = new SysMenuTreeVO();
-            BeanUtils.copyProperties(menu, vo);
-            return vo;
-        }).collect(Collectors.toList());
-
-        // 3. 按 parentId 分组
-        Map<Long, List<SysMenuTreeVO>> parentMap = voList.stream()
-                .collect(Collectors.groupingBy(SysMenuTreeVO::getParentId));
-
-        // 4. 给每个节点设置 children,按照rank进行排序
-        voList.forEach(vo -> {
-            List<SysMenuTreeVO> children = parentMap.get(vo.getId());
-            if (children != null) {
-                children.sort(Comparator.comparing(SysMenuTreeVO::getRank,
-                        Comparator.nullsLast(Integer::compareTo)));
+        List<SysMenu> list = this.list(
+                new LambdaQueryWrapper<SysMenu>()
+                    .orderByAsc(SysMenu::getRank));
+        List<SysMenuTreeVO> menuTreeVOList = new ArrayList<>();
+        list.forEach(item  ->{
+            //查找顶级菜单
+            if (item.getParentId() == 0){
+                SysMenuTreeVO menuTreeVO = BeanUtil.toBean(item, SysMenuTreeVO.class);
+                //寻找对应的子菜单
+                List<SysMenuTreeVO> subMenuTree = findSubMenuTree(menuTreeVO, list);
+                menuTreeVO.setChildren(subMenuTree);
+                menuTreeVOList.add(menuTreeVO);
             }
-            vo.setChildren(children);
         });
-        // 5. 返回根节点（parentId = 0）
-        return parentMap.getOrDefault(0L, new ArrayList<>());
+        return menuTreeVOList;
+    }
+
+    private List<SysMenuTreeVO> findSubMenuTree(SysMenuTreeVO menuTreeVO, List<SysMenu> list) {
+        List<SysMenuTreeVO> menuTreeVOList = new ArrayList<>();
+        for (SysMenu item : list){
+            if (item.getParentId().equals(menuTreeVO.getId())){
+                SysMenuTreeVO itemChildTreeVO = BeanUtil.toBean(item, SysMenuTreeVO.class);
+                menuTreeVOList.add(itemChildTreeVO);
+                itemChildTreeVO.setChildren(findSubMenuTree(itemChildTreeVO, list));
+            }
+        }
+        return menuTreeVOList;
+    }
+
+
+    @Override
+    public List<SysMenuTreeVO> getUserMenuTree(Long userId) {
+        // 菜单来源 = 用户的「角色授权」 ∪ 「用户自己的授权」，取并集：
+        // 这样引入角色模型后，不迁移历史 sys_user_menu 数据也不会把侧边栏弄空
+        Set<Long> menuIdSet = new LinkedHashSet<>();
+        User user = userMapper.selectById(userId);
+        if (user != null && user.getRoleId() != null) {
+            // user.role_id 是 int，sys_role_menu.role_id 是 bigint，这里做一次类型转换
+            menuIdSet.addAll(roleMenuService.listMenuIdsByRoleId(user.getRoleId().longValue()));
+        }
+        userMenuService.list(new LambdaQueryWrapper<SysUserMenu>()
+                        .eq(SysUserMenu::getUserId, userId))
+                .forEach(item -> menuIdSet.add(item.getMenuId()));
+
+        if (menuIdSet.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Long> menuIds = new ArrayList<>(menuIdSet);
+        List<SysMenu> list = this.listByIds(menuIds);
+        List<SysMenuTreeVO> menuTreeVOList = new ArrayList<>();
+        list.forEach(item  ->{
+            //查找顶级菜单
+            if (item.getParentId() == 0){
+                SysMenuTreeVO menuTreeVO = BeanUtil.toBean(item, SysMenuTreeVO.class);
+                //寻找对应的子菜单
+                List<SysMenuTreeVO> subMenuTree = findSubMenuTree(menuTreeVO, list);
+                menuTreeVO.setChildren(subMenuTree);
+                menuTreeVOList.add(menuTreeVO);
+            }
+        });
+        return menuTreeVOList;
     }
 }
 

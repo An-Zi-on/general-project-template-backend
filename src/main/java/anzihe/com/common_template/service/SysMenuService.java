@@ -25,4 +25,6 @@ public interface SysMenuService extends IService<SysMenu> {
     SysMenuVO getDetailById(Long id);
 
     List<SysMenuTreeVO> tree();
+
+    List<SysMenuTreeVO> getUserMenuTree(Long userId);
 }

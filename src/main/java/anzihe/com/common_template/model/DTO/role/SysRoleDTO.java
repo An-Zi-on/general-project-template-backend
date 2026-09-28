@@ -1,8 +1,10 @@
 package anzihe.com.common_template.model.DTO.role;
 
+import anzihe.com.common_template.common.PageRequest;
 import anzihe.com.common_template.common.validation.SaveGroup;
 import anzihe.com.common_template.common.validation.UpdateGroup;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -14,7 +16,7 @@ import java.io.Serializable;
  * 角色新增/修改 DTO
  */
 @Data
-public class SysRoleDTO implements Serializable {
+public class SysRoleDTO extends PageRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

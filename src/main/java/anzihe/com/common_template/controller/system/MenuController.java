@@ -7,6 +7,7 @@ import anzihe.com.common_template.model.DTO.menu.SysMenuDTO;
 import anzihe.com.common_template.model.VO.menu.SysMenuTreeVO;
 import anzihe.com.common_template.model.VO.menu.SysMenuVO;
 import anzihe.com.common_template.service.SysMenuService;
+import lombok.Getter;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -63,5 +64,10 @@ public class MenuController {
     @GetMapping("/tree")
     public BaseResponse<List<SysMenuTreeVO>> tree() {
         return ResultUtils.success(menuService.tree());
+    }
+
+    @GetMapping("/user_tree")
+    public BaseResponse<List<SysMenuTreeVO>> getTreeByUser(@RequestParam Long  userId){
+        return ResultUtils.success(menuService.getUserMenuTree(userId));
     }
 }
