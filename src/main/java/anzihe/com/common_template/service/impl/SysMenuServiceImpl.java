@@ -18,6 +18,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -98,18 +99,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu>
         List<SysMenu> list = this.list(
                 new LambdaQueryWrapper<SysMenu>()
                     .orderByAsc(SysMenu::getRank));
-        List<SysMenuTreeVO> menuTreeVOList = new ArrayList<>();
-        list.forEach(item  ->{
-            //查找顶级菜单
-            if (item.getParentId() == 0){
-                SysMenuTreeVO menuTreeVO = BeanUtil.toBean(item, SysMenuTreeVO.class);
-                //寻找对应的子菜单
-                List<SysMenuTreeVO> subMenuTree = findSubMenuTree(menuTreeVO, list);
-                menuTreeVO.setChildren(subMenuTree);
-                menuTreeVOList.add(menuTreeVO);
-            }
-        });
-        return menuTreeVOList;
+        return getSysMenuTreeVOS(list);
     }
 
     private List<SysMenuTreeVO> findSubMenuTree(SysMenuTreeVO menuTreeVO, List<SysMenu> list) {
@@ -127,12 +117,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu>
 
     @Override
     public List<SysMenuTreeVO> getUserMenuTree(Long userId) {
-        // 菜单来源 = 用户的「角色授权」 ∪ 「用户自己的授权」，取并集：
-        // 这样引入角色模型后，不迁移历史 sys_user_menu 数据也不会把侧边栏弄空
         Set<Long> menuIdSet = new LinkedHashSet<>();
         User user = userMapper.selectById(userId);
         if (user != null && user.getRoleId() != null) {
-            // user.role_id 是 int，sys_role_menu.role_id 是 bigint，这里做一次类型转换
             menuIdSet.addAll(roleMenuService.listMenuIdsByRoleId(user.getRoleId().longValue()));
         }
         userMenuService.list(new LambdaQueryWrapper<SysUserMenu>()
@@ -144,6 +131,11 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu>
         }
         List<Long> menuIds = new ArrayList<>(menuIdSet);
         List<SysMenu> list = this.listByIds(menuIds);
+        return getSysMenuTreeVOS(list);
+    }
+
+    @NotNull
+    private List<SysMenuTreeVO> getSysMenuTreeVOS(List<SysMenu> list) {
         List<SysMenuTreeVO> menuTreeVOList = new ArrayList<>();
         list.forEach(item  ->{
             //查找顶级菜单

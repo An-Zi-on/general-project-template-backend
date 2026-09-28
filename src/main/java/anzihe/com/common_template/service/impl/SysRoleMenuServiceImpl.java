@@ -41,14 +41,12 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
         if (roleId == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "角色ID不能为空");
         }
-        // 覆盖式分配：先清掉该角色已有授权
         this.remove(new LambdaQueryWrapper<SysRoleMenu>()
                 .eq(SysRoleMenu::getRoleId, roleId));
 
         if (CollectionUtil.isEmpty(menuIds)) {
             return true;
         }
-        // 去重：uk_role_menu(role_id, menu_id) 是唯一键，重复会直接插失败
         for (Long menuId : new LinkedHashSet<>(menuIds)) {
             if (menuId == null) {
                 continue;
