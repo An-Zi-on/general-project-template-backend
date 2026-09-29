@@ -52,8 +52,6 @@ public class JacksonConfiguration{
                 dateFormat = DateTimeFormatterUtil.DATE_TIME_STR;
             }
             jacksonObjectMapperBuilder.simpleDateFormat(dateFormat);
-
-
             // 注册 Java8 时间模块的序列化器
             jacksonObjectMapperBuilder.serializers(
                     new LocalDateTimeSerializer(DateTimeFormatterUtil.DATE_TIME_FORMAT),

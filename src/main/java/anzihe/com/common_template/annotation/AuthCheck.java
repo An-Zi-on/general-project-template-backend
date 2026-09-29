@@ -7,7 +7,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface authCheck {
-
+public @interface AuthCheck {
     String mustRole() default "";
 }

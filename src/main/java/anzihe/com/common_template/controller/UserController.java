@@ -1,6 +1,6 @@
 package anzihe.com.common_template.controller;
 
-import anzihe.com.common_template.annotation.authCheck;
+import anzihe.com.common_template.annotation.AuthCheck;
 import anzihe.com.common_template.common.BaseResponse;
 import anzihe.com.common_template.common.DeleteRequest;
 import anzihe.com.common_template.common.ResultUtils;
@@ -154,7 +154,7 @@ public class UserController {
     }
 
     @PostMapping("/add")
-    @authCheck(mustRole = UserConstant.USER_ADMIN)
+    @AuthCheck(mustRole = UserConstant.USER_ADMIN)
     public BaseResponse<?> addUser(@RequestBody UserAddRequest userAddRequest) {
         ThrowUtils.throwException(userAddRequest == null, ErrorCode.PARAMS_ERROR);
         User user = new User();
@@ -167,7 +167,7 @@ public class UserController {
     }
 
     @PostMapping("/delete")
-    @authCheck(mustRole = UserConstant.USER_ADMIN)
+    @AuthCheck(mustRole = UserConstant.USER_ADMIN)
     public BaseResponse<?> delete(@RequestBody DeleteRequest deleteRequest) {
         ThrowUtils.throwException(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
         Long id = deleteRequest.getId();
@@ -177,7 +177,7 @@ public class UserController {
     }
 
     @PostMapping("/update")
-    @authCheck(mustRole = UserConstant.USER_ADMIN)
+    @AuthCheck(mustRole = UserConstant.USER_ADMIN)
     public BaseResponse<?> update(@RequestBody UserUpdateRequest userUpdateRequest) {
         ThrowUtils.throwException(userUpdateRequest == null || userUpdateRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
         User user = new User();
@@ -188,7 +188,7 @@ public class UserController {
     }
 
     @PostMapping("/list/page/vo")
-    @authCheck(mustRole = UserConstant.USER_ADMIN)
+    @AuthCheck(mustRole = UserConstant.USER_ADMIN)
     public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest) {
         ThrowUtils.throwException(userQueryRequest == null, ErrorCode.PARAMS_ERROR);
         int current = userQueryRequest.getCurrent();

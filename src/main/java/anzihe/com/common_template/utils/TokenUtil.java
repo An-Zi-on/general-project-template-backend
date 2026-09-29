@@ -82,7 +82,6 @@ public class TokenUtil {
         if (StrUtil.isBlank(token)) {
             return false;
         }
-
         try {
             JWTVerifier verifier = JWT.require(Algorithm.HMAC256(staticTokenSecret))
                     .withIssuer(staticIssuer)
@@ -156,4 +155,5 @@ public class TokenUtil {
             return null;
         }
     }
+
 }

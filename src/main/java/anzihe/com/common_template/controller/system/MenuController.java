@@ -56,7 +56,6 @@ public class MenuController {
     public BaseResponse<SysMenuVO> getById(@PathVariable Long id) {
         return ResultUtils.success(menuService.getDetailById(id));
     }
-
     /**
      * 查询菜单树（如果前端需要树形结构）
      */
